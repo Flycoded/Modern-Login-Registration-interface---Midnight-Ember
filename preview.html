@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a1b3d">
+  <meta name="description" content="Flycoded Account UI — modern login, registration, and password recovery demo.">
+  <title>Flycoded Account — Sign in & Register</title>
+  <style>
+/*
+  Flycoded Account UI — Midnight & Ember
+  Vanilla CSS. Works offline and without a framework.
+*/
+:root {
+  color-scheme: light;
+  --navy: #0a1b3d;
+  --deep: #07142e;
+  --ink: #101c32;
+  --muted: #768094;
+  --orange: #ff6a00;
+  --orange-dark: #ea5e00;
+  --border: #e1e6ed;
+  --soft: #f6f8fa;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+*{box-sizing:border-box}
+html{min-width:320px}
+body{margin:0;min-height:100svh;background:#e9edf3;color:var(--ink)}
+button,input{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+[hidden]{display:none!important}
+.icon-library{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.ic{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.page-shell{width:min(1250px,calc(100% - 72px));min-height:min(820px,calc(100svh - 72px));margin:36px auto;display:grid;grid-template-columns: .95fr 1.05fr;border-radius:26px;overflow:hidden;box-shadow:0 24px 80px rgba(21,39,67,.13),0 2px 4px rgba(21,39,67,.04)}
+/* Brand + atmospheric editorial panel */
+.story-panel{position:relative;background:linear-gradient(142deg,#0e264d 0%,#0a1b3d 48%,#05102a 100%);color:white;overflow:hidden;padding:45px 46px 32px;display:flex;flex-direction:column;min-height:730px;isolation:isolate}
+.story-grid{position:absolute;inset:0;z-index:-1;opacity:.3;background-image:linear-gradient(rgba(200,222,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(200,222,255,.055) 1px,transparent 1px);background-size:39px 39px;mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent)}
+.story-glow{position:absolute;inset:auto -240px -290px auto;width:690px;height:690px;border-radius:50%;background:radial-gradient(circle,rgba(255,105,0,.19) 0%,rgba(255,105,0,.06) 33%,transparent 68%);z-index:-1}
+.story-top,.story-bottom{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:inline-flex;gap:12px;align-items:center;text-decoration:none;font-weight:800;font-size:23px;letter-spacing:-1.3px;color:inherit}
+.brand-dot{color:var(--orange)}
+.brand-mark{position:relative;display:grid;grid-template-columns:repeat(2,10px);grid-template-rows:repeat(2,10px);gap:3px;transform:rotate(-18deg)}
+.brand-mark span{background:#ff6a00;border-radius:3px 3px 2px 3px}
+.brand-mark span:nth-child(2){opacity:.7}
+.brand-mark span:nth-child(3){opacity:.64}
+.brand-mark span:nth-child(4){background:#fff}
+.brand-tag{font-weight:700;font-size:9px;letter-spacing:2px;color:#8094b6;text-align:right}
+.story-copy{padding-top:84px;position:relative;z-index:2}
+.story-kicker{font-weight:800;font-size:10px;letter-spacing:3px;color:#b9c7db;display:flex;align-items:center;gap:13px}
+.kicker-line{display:inline-block;background:var(--orange);height:2px;width:27px}
+.story-copy h1{font-size:clamp(45px,4.2vw,65px);line-height:1.13;letter-spacing:-2.9px;font-weight:760;margin:24px 0 20px}
+.story-copy h1 em{font-style:normal;color:#ffa45b}
+.orange-period{color:var(--orange)}
+.story-copy p{max-width:340px;color:#aab9d0;line-height:1.8;font-size:14px;margin:0}
+.artboard{height:270px;width:350px;position:relative;margin:20px auto 0;flex-shrink:0;align-self:center}
+.art-orbit{position:absolute;border-radius:50%;border:1px solid rgba(252,160,91,.21);left:50%;top:51%;transform:translate(-50%,-50%) rotate(-20deg)}
+.orbit-one{width:148px;height:148px}
+.orbit-two{width:243px;height:198px;border-style:dashed;border-color:rgba(252,160,91,.26)}
+.orbit-three{width:340px;height:254px;border-color:rgba(153,192,255,.14)}
+.art-center{position:absolute;width:125px;height:125px;border-radius:36px;left:50%;top:51%;transform:translate(-50%,-50%) rotate(-15deg);background:linear-gradient(140deg,#ffad63,#ff6a00 54%,#e64c00);box-shadow:0 18px 65px rgba(255,106,0,.35),inset 0 2px 2px rgba(255,255,255,.45);display:grid;place-items:center}
+.art-monogram{font-size:80px;line-height:1;font-weight:900;letter-spacing:-9px;color:#fff;transform:rotate(15deg);padding-right:12px}
+.art-monogram span{font-size:33px;letter-spacing:0;margin-left:3px}
+.art-star{position:absolute;color:#fff8d8;font-size:21px}
+.star-one{top:-19px;right:-15px}.star-two{bottom:-25px;left:-12px}
+.art-label{position:absolute;border:1px solid rgba(241,247,255,.14);backdrop-filter:blur(10px);border-radius:8px;background:rgba(226,239,255,.08);padding:9px 12px;font-size:10px;letter-spacing:2px;font-weight:800;color:#e5ecf9;box-shadow:0 8px 22px rgba(0,0,0,.07)}
+.art-label-one{top:31px;left:14px;transform:rotate(-7deg)}
+.art-label-two{right:-4px;top:95px;transform:rotate(7deg)}
+.art-label-three{left:30px;bottom:26px;transform:rotate(5deg)}
+.story-bottom{margin-top:auto;color:#9cb1ce;font-size:11px;letter-spacing:.1px;flex-wrap:wrap}
+.status-line{display:flex;gap:8px;align-items:center;white-space:nowrap}
+.status-dot{height:6px;width:6px;border-radius:50%;background:#ff8833;box-shadow:0 0 0 4px rgba(255,136,51,.12)}
+/* Light form panel */
+.auth-panel{background:#fff;padding:38px 50px 27px;min-width:0;display:flex;flex-direction:column}
+.auth-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:30px}
+.auth-eyebrow{font-size:10px;font-weight:850;letter-spacing:1.9px;color:#8b94a4;white-space:nowrap}
+.auth-eyebrow span{color:#ff6a00;padding:0 4px}
+.quick-switch{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end;font-size:12px;color:#8490a1}
+.text-action,.inline-link{appearance:none;background:none;border:0;padding:0;color:#db5800;font-weight:750;text-decoration:none}
+.text-action:focus-visible,.inline-link:focus-visible,.back-btn:focus-visible{outline:3px solid #ffb781;outline-offset:4px;border-radius:3px}
+.text-action:hover,.inline-link:hover{text-decoration:underline}
+.auth-inner{width:min(100%,430px);margin:auto;display:flex;flex-direction:column;justify-content:center;padding:35px 0 30px}
+.form-view{animation:fade-slide .35s ease both}
+@keyframes fade-slide{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow-chip{width:fit-content;display:inline-flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1.5px;font-weight:850;color:#d15b0e;background:#fff1e8;border:1px solid #ffe4d2;border-radius:999px;padding:8px 11px}
+.eyebrow-chip .ic{width:14px;height:14px;stroke-width:2}
+.form-view h2{font-size:clamp(34px,3.1vw,46px);letter-spacing:-1.8px;line-height:1.16;margin:20px 0 12px;color:#12203b;font-weight:780}
+.heading-accent{color:var(--orange)}
+.view-subtitle{color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 30px}
+.auth-form{display:flex;flex-direction:column;gap:19px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label,.label-row label{font-size:12px;font-weight:730;color:#26354c}
+.label-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.inline-link{font-size:12px}
+.input-wrap{height:52px;display:flex;align-items:center;border-radius:11px;border:1px solid #dfe4ec;background:#f8f9fc;transition:border-color .2s,box-shadow .2s,background .2s;position:relative}
+.input-wrap:focus-within{border-color:#ff9d58;background:#fff;box-shadow:0 0 0 4px rgba(255,106,0,.10)}
+.input-wrap.field-invalid{border-color:#db5962;background:#fffafa}
+.field-icon{margin:0 13px 0 17px;color:#a1aaba;width:18px;height:18px}
+.input-wrap input{min-width:0;flex:1;height:100%;background:transparent;border:0;outline:0;color:var(--ink);font-size:13px;padding:0 14px 0 0}
+.input-wrap input::placeholder{color:#aab3c1;opacity:1}
+.password-toggle{display:grid;place-items:center;color:#8b99ad;background:none;border:0;padding:11px;margin-right:4px;border-radius:7px}
+.password-toggle:hover{color:#38465b;background:#eff1f6}
+.password-toggle:focus-visible{outline:2px solid #ff9d58;outline-offset:-1px}
+.password-toggle .ic{width:18px;height:18px}
+.field-error{font-size:11px;color:#c33640;line-height:1.35;min-height:0}
+.field-error:not(:empty){margin-top:1px}
+.hint{font-size:10px;color:#98a1ae;line-height:1.3}
+.checkbox-row{display:flex;gap:10px;align-items:center;font-size:12px;color:#657184;position:relative;cursor:pointer;line-height:1.4;margin-top:-2px}
+.checkbox-row input{position:absolute;opacity:0;left:0;top:50%;transform:translateY(-50%);width:17px;height:17px;margin:0;z-index:1;cursor:pointer}
+.checkbox-custom{display:grid;place-items:center;width:17px;height:17px;flex:0 0 17px;border:1.5px solid #c9d1db;border-radius:5px;background:#f9fafc;transition:background .15s,border .15s}
+.checkbox-custom .ic{width:13px;height:13px;color:white;stroke-width:2.8;opacity:0}
+.checkbox-row input:checked+.checkbox-custom{background:var(--orange);border-color:var(--orange)}
+.checkbox-row input:checked+.checkbox-custom .ic{opacity:1}
+.checkbox-row input:focus-visible+.checkbox-custom{outline:3px solid #ffc99e;outline-offset:3px}
+.agree-row{margin:0}
+.primary-btn{display:flex;justify-content:space-between;align-items:center;width:100%;height:54px;padding:0 18px 0 23px;color:white;background:var(--orange);border:1px solid #fa6700;border-radius:11px;box-shadow:0 10px 22px rgba(255,106,0,.16);font-size:14px;font-weight:800;margin-top:2px;transition:transform .15s,background .2s,box-shadow .2s}
+.primary-btn:hover{background:var(--orange-dark);box-shadow:0 12px 25px rgba(255,106,0,.26);transform:translateY(-1px)}
+.primary-btn:active{transform:translateY(1px)}
+.primary-btn:focus-visible{outline:3px solid #ffbe93;outline-offset:3px}
+.primary-btn .ic{width:22px;height:22px}
+.form-bottom{margin:24px 0 0;text-align:center;font-size:12px;color:#8992a1}
+.bold-link{font-weight:800}
+.demo-note{border-top:1px solid #edf0f5;margin-top:35px;padding-top:22px;display:flex;gap:9px;align-items:flex-start;font-size:11px;line-height:1.55;color:#969fae}
+.note-dot{width:7px;height:7px;border-radius:50%;background:#ff9b55;flex:0 0 7px;margin-top:5px}
+.auth-footer{display:flex;justify-content:space-between;gap:15px;color:#a4aebc;font-size:10px;margin-top:auto;letter-spacing:.1px}
+.auth-footer span:last-child{font-size:9px;letter-spacing:1px;font-weight:750}
+#view-signup .view-subtitle{margin-bottom:20px}
+#view-signup .auth-form{gap:13px}
+#view-signup .field{gap:7px}
+#view-signup .input-wrap{height:47px}
+#view-signup .primary-btn{height:51px}
+#view-signup h2{font-size:clamp(32px,2.9vw,41px);margin-top:15px}
+#view-signup .form-bottom{margin-top:15px}
+.strength-row{display:flex;gap:11px;align-items:center;margin:3px 0 0}
+.strength-track{height:4px;border-radius:999px;overflow:hidden;background:#e8edf2;flex:1}
+#strength-fill{display:block;width:0;height:100%;background:#dde0e8;transition:width .22s,background .22s}
+#strength-label{font-size:10px;color:#97a0ae;min-width:92px;text-align:right}
+.back-btn{border:0;background:transparent;color:#657184;padding:0;display:flex;gap:8px;align-items:center;margin:0 0 37px;font-weight:700;font-size:12px}
+.back-btn:hover{color:var(--orange)}.back-btn .ic{width:17px;height:17px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;background:#122344;color:#fff;max-width:min(92vw,480px);min-width:min(92vw,320px);padding:14px 15px;border-radius:13px;box-shadow:0 12px 44px #0919303b;display:flex;gap:12px;align-items:flex-start;font-size:12px;line-height:1.6}
+.toast-icon{background:#ff6a00;color:white;display:grid;place-items:center;flex:0 0 23px;height:23px;border-radius:50%}
+.toast-icon .ic{width:14px;height:14px}
+.toast-close{margin-left:auto;color:#e1e9f3;background:transparent;border:0;font-size:25px;line-height:20px;padding:0 0 0 10px}
+.toast-close:hover{color:white}
+@media(max-width:1000px){
+  .page-shell{width:calc(100% - 36px);margin:18px auto;min-height:calc(100svh - 36px);grid-template-columns:.9fr 1.1fr}
+  .story-panel{padding:30px 26px;min-height:690px}
+  .brand-tag{display:none}
+  .story-copy{padding-top:75px}
+  .story-copy h1{font-size:43px}
+  .artboard{transform:scale(.85);transform-origin:50% 50%;margin-left:-8px;margin-top:5px}
+  .story-bottom{font-size:10px}
+  .auth-panel{padding:30px 30px 23px}
+  .auth-footer span:last-child{display:none}
+}
+@media(max-width:700px){
+  body{background:#fff}
+  .page-shell{width:100%;margin:0;display:flex;flex-direction:column;box-shadow:none;border-radius:0;min-height:100svh}
+  .story-panel{min-height:unset;padding:19px 25px 24px;border-radius:0 0 25px 25px;overflow:hidden}
+  .story-panel:before{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(255,255,255,.10);border-radius:50%;right:-40px;top:-50px}
+  .story-top .brand{font-size:21px}
+  .story-copy{padding-top:32px}
+  .story-kicker{font-size:9px;letter-spacing:2px}
+  .story-copy h1{font-size:34px;letter-spacing:-1.3px;line-height:1.13;margin:14px 0 0}
+  .story-copy h1 br:nth-of-type(2){display:none}
+  .story-copy p,.artboard,.story-bottom{display:none}
+  .auth-panel{padding:20px 24px 27px;flex:1}
+  .auth-topbar{align-items:flex-start}
+  .auth-eyebrow{font-size:9px}
+  .auth-inner{margin:0 auto;width:min(100%,440px);padding:38px 0 30px}
+  .form-view h2{font-size:36px}
+  .view-subtitle{margin-bottom:25px}
+  .auth-footer{margin-top:auto;justify-content:center;text-align:center}
+  .demo-note{margin-top:28px}
+}
+@media(max-width:380px){
+  .auth-panel{padding-left:19px;padding-right:19px}
+  .story-panel{padding-left:20px;padding-right:20px}
+  .story-copy h1{font-size:31px}
+  .auth-topbar .quick-switch{font-size:11px}
+  .auth-eyebrow{font-size:8px}
+  .form-view h2{font-size:33px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}
+
+</style>
+  
+</head>
+<body>
+  <!-- Local SVG symbols: no icon library or Internet connection needed. -->
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="ic-mail" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="m4.5 7 7.5 6 7.5-6"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8.5 10V7a3.5 3.5 0 0 1 7 0v3"/></symbol>
+    <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3.1-6 7-6s7 2 7 6"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="ic-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18M10 6.2c.7-.1 1.3-.2 2-.2 6 0 9.5 6 9.5 6a15.5 15.5 0 0 1-3.1 3.5M6.1 8.3A17 17 0 0 0 2.5 12s3.5 6 9.5 6c1.4 0 2.6-.3 3.8-.7"/><path d="M10.5 10.5a2.5 2.5 0 0 0 3 3"/></symbol>
+    <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    <symbol id="ic-back" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6M8 12h12"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 2.5 14.4 9l6.6 3-6.6 2.7L12 21.5 9.3 14.7 3 12l6.3-3L12 2.5Z"/></symbol>
+  </svg>
+
+  <main class="page-shell">
+    <section class="story-panel" aria-label="Welcome to Flycoded">
+      <div class="story-grid" aria-hidden="true"></div>
+      <div class="story-glow" aria-hidden="true"></div>
+      <div class="story-top">
+        <a class="brand brand-light" href="#" aria-label="Flycoded Account home">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span>flycoded<span class="brand-dot">.</span></span>
+        </a>
+        <span class="brand-tag">YOUR DIGITAL WORLD</span>
+      </div>
+      <div class="story-copy">
+        <div class="story-kicker"><span class="kicker-line"></span> A SPACE TO DO MORE</div>
+        <h1>Ideas deserve<br><em>a great</em> <br>beginning<span class="orange-period">.</span></h1>
+        <p>Everything starts somewhere. Step inside your digital space and make the next move count.</p>
+      </div>
+      <div class="artboard" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <div class="art-orbit orbit-three"></div>
+        <div class="art-center">
+          <span class="art-star star-one">✳</span>
+          <span class="art-monogram">F<span>•</span></span>
+          <span class="art-star star-two">✦</span>
+        </div>
+        <span class="art-label art-label-one">CREATE</span>
+        <span class="art-label art-label-two">CONNECT</span>
+        <span class="art-label art-label-three">GROW</span>
+      </div>
+      <div class="story-bottom">
+        <span>Build. Brand. Register. Learn. Grow.</span>
+        <span class="status-line"><span class="status-dot"></span> Made to move you forward</span>
+      </div>
+    </section>
+
+    <section class="auth-panel" aria-label="Account access">
+      <header class="auth-topbar">
+        <span class="auth-eyebrow">FLYCODED <span>/</span> ACCOUNT</span>
+        <div class="quick-switch" id="quick-switch">
+          <span id="quick-switch-copy">New here?</span>
+          <button type="button" class="text-action" id="quick-switch-btn" data-go="signup">Create account <span aria-hidden="true">↗</span></button>
+        </div>
+      </header>
+      <div class="auth-inner">
+        <div class="auth-views">
+          <section class="form-view is-active" id="view-signin" aria-labelledby="signin-title">
+            <div class="eyebrow-chip"><svg class="ic"><use href="#ic-spark"></use></svg> WELCOME BACK</div>
+            <h2 id="signin-title">Your next move<br>starts here<span class="heading-accent">.</span></h2>
+            <p class="view-subtitle">Sign in to pick up right where you left off.</p>
+            <form id="signin-form" class="auth-form" novalidate>
+              <div class="field">
+                <label for="signin-email">Email address</label>
+                <div class="input-wrap"><svg class="ic field-icon"><use href="#ic-mail"></use></svg><input id="signin-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required aria-describedby="signin-email-error"></div>
+                <small class="field-error" id="signin-email-error" aria-live="polite"></small>
+              </div>
+              <div class="field">
+                <div class="label-row"><label for="signin-password">Password</label><button type="button" class="inline-link" data-go="recovery">Forgot password?</button></div>
+                <div class="input-wrap"><svg class="ic field-icon"><use href="#ic-lock"></use></svg><input id="signin-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required aria-describedby="signin-password-error"><button class="password-toggle" type="button" data-toggle-password="signin-password" aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#ic-eye"></use></svg></button></div>
+                <small class="field-error" id="signin-password-error" aria-live="polite"></small>
+              </div>
+              <label class="checkbox-row"><input id="remember-email" type="checkbox"><span class="checkbox-custom" aria-hidden="true"><svg class="ic"><use href="#ic-check"></use></svg></span><span>Remember my email</span></label>
+              <button type="submit" class="primary-btn"><span>Sign in</span><svg class="ic"><use href="#ic-arrow"></use></svg></button>
+            </form>
+            <p class="form-bottom">Don't have an account? <button type="button" class="inline-link bold-link" data-go="signup">Create one now</button></p>
+          </section>
+
+          <section class="form-view" id="view-signup" aria-labelledby="signup-title" hidden>
+            <div class="eyebrow-chip"><svg class="ic"><use href="#ic-spark"></use></svg> THE START OF SOMETHING</div>
+            <h2 id="signup-title">Make room for<br>what's next<span class="heading-accent">.</span></h2>
+            <p class="view-subtitle">Create your account and start something great.</p>
+            <form id="signup-form" class="auth-form" novalidate>
+              <div class="field">
+                <label for="signup-name">Full name</label>
+                <div class="input-wrap"><svg class="ic field-icon"><use href="#ic-user"></use></svg><input id="signup-name" name="name" type="text" autocomplete="name" placeholder="Your full name" minlength="2" required aria-describedby="signup-name-error"></div>
+                <small class="field-error" id="signup-name-error" aria-live="polite"></small>
+              </div>
+              <div class="field">
+                <label for="signup-email">Email address</label>
+                <div class="input-wrap"><svg class="ic field-icon"><use href="#ic-mail"></use></svg><input id="signup-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required aria-describedby="signup-email-error"></div>
+                <small class="field-error" id="signup-email-error" aria-live="polite"></small>
+              </div>
+              <div class="field">
+                <label for="signup-password">Create password</label>
+                <div class="input-wrap"><svg class="ic field-icon"><use href="#ic-lock"></use></svg><input id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required aria-describedby="signup-password-error password-hint"><button class="password-toggle" type="button" data-toggle-password="signup-password" aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#ic-eye"></use></svg></button></div>
+                <div class="strength-row"><div class="strength-track" aria-hidden="true"><span id="strength-fill"></span></div><span id="strength-label">Password strength</span></div>
+                <small class="hint" id="password-hint">Use 8+ characters, a number, and a symbol.</small>
+                <small class="field-error" id="signup-password-error" aria-live="polite"></small>
+              </div>
+              <div class="field">
+                <label for="signup-confirm">Confirm password</label>
+                <div class="input-wrap"><svg class="ic field-icon"><use href="#ic-lock"></use></svg><input id="signup-confirm" name="confirm" type="password" autocomplete="new-password" placeholder="Repeat your password" required aria-describedby="signup-confirm-error"><button class="password-toggle" type="button" data-toggle-password="signup-confirm" aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#ic-eye"></use></svg></button></div>
+                <small class="field-error" id="signup-confirm-error" aria-live="polite"></small>
+              </div>
+              <label class="checkbox-row agree-row"><input id="demo-agreement" type="checkbox" required><span class="checkbox-custom" aria-hidden="true"><svg class="ic"><use href="#ic-check"></use></svg></span><span>I understand this is a frontend demonstration.</span></label>
+              <small class="field-error" id="demo-agreement-error" aria-live="polite"></small>
+              <button type="submit" class="primary-btn"><span>Create my account</span><svg class="ic"><use href="#ic-arrow"></use></svg></button>
+            </form>
+            <p class="form-bottom">Already a member? <button type="button" class="inline-link bold-link" data-go="signin">Sign in instead</button></p>
+          </section>
+
+          <section class="form-view" id="view-recovery" aria-labelledby="recovery-title" hidden>
+            <button type="button" class="back-btn" data-go="signin"><svg class="ic"><use href="#ic-back"></use></svg> Back to sign in</button>
+            <div class="eyebrow-chip"><svg class="ic"><use href="#ic-lock"></use></svg> ACCOUNT RECOVERY</div>
+            <h2 id="recovery-title">Reset your<br>password<span class="heading-accent">.</span></h2>
+            <p class="view-subtitle">Enter your email to preview the password recovery flow. No email will actually be sent.</p>
+            <form id="recovery-form" class="auth-form" novalidate>
+              <div class="field"><label for="recovery-email">Email address</label><div class="input-wrap"><svg class="ic field-icon"><use href="#ic-mail"></use></svg><input id="recovery-email" type="email" name="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required aria-describedby="recovery-email-error"></div><small class="field-error" id="recovery-email-error" aria-live="polite"></small></div>
+              <button type="submit" class="primary-btn"><span>Preview reset request</span><svg class="ic"><use href="#ic-arrow"></use></svg></button>
+            </form>
+          </section>
+        </div>
+        <div class="demo-note"><span class="note-dot" aria-hidden="true"></span> UI demo only — no account information is submitted or stored on a server.</div>
+      </div>
+      <footer class="auth-footer"><span>© <span id="copyright-year"></span> Flycoded Network Enterprise</span><span>DESIGNED TO BE DIFFERENT ✳</span></footer>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden><span class="toast-icon" aria-hidden="true"><svg class="ic"><use href="#ic-check"></use></svg></span><span id="toast-message"></span><button type="button" class="toast-close" id="toast-close" aria-label="Dismiss notification">×</button></div>
+<script>
+/* Flycoded Account UI — plain JavaScript, no real authentication backend. */
+(() => {
+  'use strict';
+  const views = {
+    signin: document.getElementById('view-signin'),
+    signup: document.getElementById('view-signup'),
+    recovery: document.getElementById('view-recovery')
+  };
+  const quickCopy = document.getElementById('quick-switch-copy');
+  const quickButton = document.getElementById('quick-switch-btn');
+  const toast = document.getElementById('toast');
+  const toastMessage = document.getElementById('toast-message');
+  const signinEmail = document.getElementById('signin-email');
+  const signupPassword = document.getElementById('signup-password');
+  const rememberEmail = document.getElementById('remember-email');
+  const KEY = 'flycoded_auth_remembered_email';
+  let toastTimer;
+
+  function showToast(message) {
+    toastMessage.textContent = message;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 6500);
+  }
+
+  document.getElementById('toast-close').addEventListener('click', () => {
+    toast.hidden = true;
+    clearTimeout(toastTimer);
+  });
+
+  function setView(name) {
+    if (!views[name]) return;
+    Object.entries(views).forEach(([key, section]) => {
+      const active = key === name;
+      section.hidden = !active;
+      section.classList.toggle('is-active', active);
+    });
+    if (name === 'signin') {
+      quickCopy.textContent = 'New here?';
+      quickButton.textContent = 'Create account ↗';
+      quickButton.dataset.go = 'signup';
+    } else {
+      quickCopy.textContent = 'Have an account?';
+      quickButton.textContent = 'Sign in ↗';
+      quickButton.dataset.go = 'signin';
+    }
+    const headline = views[name].querySelector('h2');
+    if (headline) document.title = `${headline.textContent.trim().replace(/\s+/g, ' ')} | Flycoded`;
+    // Mobile visitors can move from a long sign-up form back to the heading.
+    if (window.innerWidth <= 700) window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  document.querySelectorAll('[data-go]').forEach(button => {
+    button.addEventListener('click', () => setView(button.dataset.go));
+  });
+
+  document.querySelectorAll('[data-toggle-password]').forEach(button => {
+    button.addEventListener('click', () => {
+      const input = document.getElementById(button.dataset.togglePassword);
+      if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      button.setAttribute('aria-pressed', String(show));
+      button.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      button.querySelector('use').setAttribute('href', show ? '#ic-eye-off' : '#ic-eye');
+      input.focus();
+    });
+  });
+
+  function messageFor(input) {
+    const val = input.value.trim();
+    if (input.required && !val) return 'This field is required.';
+    if (input.type === 'email' && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Enter a valid email address.';
+    if (input.id === 'signup-name' && val.length < 2) return 'Enter at least 2 characters.';
+    if (input.id === 'signup-password') {
+      if (input.value.length < 8) return 'Use at least 8 characters.';
+      if (!/[0-9]/.test(input.value) || !/[^A-Za-z0-9]/.test(input.value)) return 'Include a number and a symbol.';
+    }
+    if (input.id === 'signup-confirm' && input.value !== signupPassword.value) return 'Passwords do not match.';
+    return '';
+  }
+
+  function setError(input, message) {
+    const error = document.getElementById(`${input.id}-error`);
+    if (error) error.textContent = message;
+    input.closest('.input-wrap')?.classList.toggle('field-invalid', Boolean(message));
+    input.setAttribute('aria-invalid', String(Boolean(message)));
+  }
+
+  document.querySelectorAll('.auth-form input:not([type="checkbox"])').forEach(input => {
+    input.addEventListener('input', () => {
+      if (input.getAttribute('aria-invalid') === 'true') setError(input, messageFor(input));
+      if (input.id === 'signup-password') {
+        updateStrength(input.value);
+        const confirm = document.getElementById('signup-confirm');
+        if (confirm.value && confirm.getAttribute('aria-invalid') === 'true') setError(confirm, messageFor(confirm));
+      }
+    });
+    input.addEventListener('blur', () => {
+      if (input.value) setError(input, messageFor(input));
+    });
+  });
+
+  function updateStrength(value) {
+    const fill = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    let points = 0;
+    if (value.length >= 8) points++;
+    if (value.length >= 12) points++;
+    if (/[0-9]/.test(value)) points++;
+    if (/[^A-Za-z0-9]/.test(value)) points++;
+    if (/[A-Z]/.test(value) && /[a-z]/.test(value)) points++;
+    const levels = [0, 22, 42, 62, 82, 100];
+    const colors = ['#e3e6ed', '#ec6974', '#ec9561', '#f3b449', '#55a77f', '#219667'];
+    fill.style.width = `${value ? levels[points] : 0}%`;
+    fill.style.backgroundColor = colors[points];
+    label.textContent = !value ? 'Password strength' : points <= 2 ? 'Needs work' : points <= 3 ? 'Good' : 'Strong';
+    label.style.color = value ? colors[points] : '#97a0ae';
+  }
+
+  function validateForm(form) {
+    let valid = true;
+    let firstInvalid = null;
+    form.querySelectorAll('input:not([type="checkbox"])').forEach(input => {
+      const msg = messageFor(input);
+      setError(input, msg);
+      if (msg) { valid = false; firstInvalid ??= input; }
+    });
+    if (form.id === 'signup-form') {
+      const agreement = document.getElementById('demo-agreement');
+      const agreeError = document.getElementById('demo-agreement-error');
+      agreeError.textContent = agreement.checked ? '' : 'Please acknowledge the demo notice.';
+      if (!agreement.checked) { valid = false; firstInvalid ??= agreement; }
+    }
+    firstInvalid?.focus();
+    return valid;
+  }
+
+  document.getElementById('signin-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!validateForm(form)) return;
+    try {
+      if (rememberEmail.checked) localStorage.setItem(KEY, signinEmail.value.trim());
+      else localStorage.removeItem(KEY);
+    } catch (_) { /* Private browsing may block localStorage. */ }
+    showToast('Sign-in form validated. This is a UI demo, so no login request was sent.');
+  });
+
+  document.getElementById('signup-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if (!validateForm(event.currentTarget)) return;
+    showToast('Registration form validated. No account was created; connect a secure backend to enable registration.');
+  });
+
+  document.getElementById('recovery-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if (!validateForm(event.currentTarget)) return;
+    showToast('Recovery form validated. No reset email was sent because this is a UI-only demo.');
+  });
+
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) { signinEmail.value = saved; rememberEmail.checked = true; }
+  } catch (_) { /* Local storage is optional. */ }
+  document.getElementById('copyright-year').textContent = new Date().getFullYear();
+})();
+
+</script>
+</body>
+</html>
